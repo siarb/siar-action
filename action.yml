@@ -1,0 +1,28 @@
+name: Build docs using Docker Siar
+description: Build documentation Siar artifacts
+author: siarhei <siarhei.baradulia@jetbrains.com>
+branding:
+    icon: book-open
+    color: purple
+
+inputs:
+    docker-version:
+        description: 'Siar docker image'
+        required: false
+    location:
+        description: 'Siar documentation module'
+        default: ''
+        required: false
+    instance:
+        description: "Module name and instance ID"
+        required: true
+    artifact:
+        description: "Archive to store as artifact"
+        required: true
+    pdf:
+        description: "Generate PDF as artifact"
+        required: false
+
+runs:
+    using: 'node20'
+    main: 'dist/index.js'
