@@ -158,10 +158,14 @@ on:
   workflow_dispatch:
 
 env:
-  INSTANCE: 'Writerside/hi'
-  ARTIFACT: 'webHelpHI2-all.zip'
+  INSTANCE: 'Writerside/auto'
   DOCKER_VERSION: '242.21870'
   PDF: 'PDF.xml'
+  ALGOLIA_APP_NAME: 'NLAGB2LZHU'
+  ALGOLIA_INDEX_NAME: 'MY_INDEX'
+  ALGOLIA_KEY: '${{ secrets.ALGOLIA_KEY }}'
+  CONFIG_JSON_PRODUCT: 'AUTO'
+  CONFIG_JSON_VERSION: '1.0'
 
 jobs:
   build:
@@ -171,7 +175,16 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
+      - name: Define instance id and construct artifacts
+        run: |
+          INSTANCE_ID="${INSTANCE#*/}"
+          INSTANCE_ID_UPPER=$(echo "$INSTANCE_ID" | tr '[:lower:]' '[:upper:]')
+          echo "INSTANCE_ID_UPPER=$INSTANCE_ID_UPPER" >> $GITHUB_ENV
+          echo "ARTIFACT=webHelp${INSTANCE_ID_UPPER}2-all.zip" >> $GITHUB_ENV
+          echo "ALGOLIA_ARTIFACT=algolia-indexes-${INSTANCE_ID_UPPER}.zip" >> $GITHUB_ENV
+          echo "Extracted INSTANCE_ID and constructed ARTIFACT and ALGOLIA_ARTIFACT"
+
       - name: Build Writerside docs using Docker
         uses: JetBrains/writerside-github-action@v4
         with:
@@ -179,11 +192,13 @@ jobs:
           artifact: ${{ env.ARTIFACT }}
           docker-version: ${{ env.DOCKER_VERSION }}
           pdf: ${{ env.PDF }}
-      
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: artifact
-          path: artifacts/${{ env.ARTIFACT }}
+          path: |
+            artifacts/pdfSource${{ env.INSTANCE_ID_UPPER }}.pdf
+            artifacts/pdfSource${{ env.INSTANCE_ID_UPPER }}.html
           retention-days: 7
 ```
